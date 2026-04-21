@@ -1,0 +1,163 @@
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  ShoppingCartIcon,
+  SearchIcon,
+  UserIcon,
+  MenuIcon,
+  XIcon,
+  LeafIcon } from
+'lucide-react';
+import { useCart } from '../contexts/CartContext';
+import { motion, AnimatePresence } from 'framer-motion';
+export function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cartCount, setIsCartOpen } = useCart();
+  const location = useLocation();
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+  const navLinks = [
+  {
+    name: 'Home',
+    path: '/'
+  },
+  {
+    name: 'Shop',
+    path: '/shop'
+  },
+  {
+    name: 'Plant Care',
+    path: '/plant-care'
+  },
+  {
+    name: 'Blog',
+    path: '/blog'
+  }];
+
+  return (
+    <header
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'glass py-3' : 'bg-transparent py-5'}`}>
+      
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="bg-nature-600 text-white p-1.5 rounded-lg group-hover:bg-nature-500 transition-colors">
+              <LeafIcon size={24} />
+            </div>
+            <span className="font-display font-bold text-2xl text-nature-900 tracking-tight">
+              NatureBloom
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) =>
+            <Link
+              key={link.name}
+              to={link.path}
+              className={`text-sm font-medium transition-colors hover:text-nature-600 ${location.pathname === link.path ? 'text-nature-600' : 'text-gray-600'}`}>
+              
+                {link.name}
+              </Link>
+            )}
+          </nav>
+
+          {/* Icons */}
+          <div className="flex items-center gap-4">
+            <Link
+              to="/shop"
+              className="p-2 text-gray-600 hover:text-nature-600 transition-colors hidden sm:block">
+              
+              <SearchIcon size={20} />
+            </Link>
+
+            <Link
+              to="/dashboard"
+              className="p-2 text-gray-600 hover:text-nature-600 transition-colors hidden sm:block">
+              
+              <UserIcon size={20} />
+            </Link>
+
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="p-2 text-gray-600 hover:text-nature-600 transition-colors relative">
+              
+              <ShoppingCartIcon size={20} />
+              {cartCount > 0 &&
+              <span className="absolute top-0 right-0 bg-nature-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              }
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              className="p-2 text-gray-600 md:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              
+              {isMobileMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen &&
+        <motion.div
+          initial={{
+            opacity: 0,
+            height: 0
+          }}
+          animate={{
+            opacity: 1,
+            height: 'auto'
+          }}
+          exit={{
+            opacity: 0,
+            height: 0
+          }}
+          className="md:hidden glass border-t border-white/20 mt-3">
+          
+            <div className="flex flex-col px-4 py-6 space-y-4">
+              {navLinks.map((link) =>
+            <Link
+              key={link.name}
+              to={link.path}
+              className={`text-lg font-medium p-2 rounded-lg ${location.pathname === link.path ? 'bg-nature-50 text-nature-700' : 'text-gray-700 hover:bg-gray-50'}`}>
+              
+                  {link.name}
+                </Link>
+            )}
+              <div className="h-px bg-gray-200 my-2"></div>
+              <Link
+              to="/dashboard"
+              className="flex items-center gap-3 text-lg font-medium p-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+              
+                <UserIcon size={20} />
+                My Account
+              </Link>
+              <Link
+              to="/admin"
+              className="flex items-center gap-3 text-lg font-medium p-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+              
+                Admin Panel
+              </Link>
+            </div>
+          </motion.div>
+        }
+      </AnimatePresence>
+    </header>);
+
+}
