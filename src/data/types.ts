@@ -9,6 +9,8 @@ export interface Plant {
   category: PlantCategory;
   description: string;
   stock: number;
+  saleStock: number;
+  rentalStock: number;
   rating: number;
   reviewCount: number;
   care: PlantCare;
@@ -122,4 +124,81 @@ export interface AdminStats {
   pendingReturns: number;
   revenueChange: number;
   ordersChange: number;
+}
+
+// ============ PLANT PACKAGES ============
+export interface PlantPackage {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  basePrice: number;
+  discountedPrice: number;
+  plants: PackagePlant[];
+  videoUrl?: string;
+  rating: number;
+  reviewCount: number;
+  stock: number;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PackagePlant {
+  plantId: string;
+  quantity: number;
+  plant?: Plant;
+}
+
+// ============ RENTAL SYSTEM ============
+export type RentalPeriod = 'weekly' | 'monthly';
+
+export interface RentalPlan {
+  weekly: number;
+  monthly: number;
+}
+
+export interface RentalRequest {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  companyName: string;
+  plants: RentalPlant[];
+  rentalPeriod: RentalPeriod;
+  startDate: Date;
+  endDate: Date;
+  totalCost: number;
+  deliveryAddress: Address;
+  status: 'pending' | 'approved' | 'rejected' | 'in-rental' | 'returned' | 'damage-assessed';
+  assignedDeliveryPerson?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RentalPlant {
+  plantId: string;
+  quantity: number;
+  rentalPrice: number;
+  plant?: Plant;
+}
+
+export interface RentalDamageAssessment {
+  id: string;
+  rentalRequestId: string;
+  damageReports: DamageReport[];
+  totalDamageFee: number;
+  status: 'pending' | 'completed';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DamageReport {
+  plantId: string;
+  quantity: number;
+  condition: 'excellent' | 'good' | 'fair' | 'damaged' | 'lost';
+  description: string;
+  fee: number;
 }

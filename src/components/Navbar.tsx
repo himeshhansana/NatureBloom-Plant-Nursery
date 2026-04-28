@@ -36,6 +36,14 @@ export function Navbar() {
     path: '/shop'
   },
   {
+    name: 'Packages',
+    path: '/packages'
+  },
+  {
+    name: 'Corporate Rental',
+    path: '/corporate-rental'
+  },
+  {
     name: 'Plant Care',
     path: '/plant-care'
   },

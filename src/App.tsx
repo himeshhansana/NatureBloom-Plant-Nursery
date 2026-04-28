@@ -9,6 +9,8 @@ import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
 // Contexts
 import { CartProvider } from './contexts/CartContext';
+import { PackagesProvider } from './contexts/PackagesContext';
+import { RentalProvider } from './contexts/RentalContext';
 // Components
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -25,6 +27,8 @@ import { PlantCare } from './pages/PlantCare';
 import { Blog } from './pages/Blog';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Packages } from './pages/Packages';
+import { CorporateRental } from './pages/CorporateRental';
 // Scroll to top component
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,23 +59,29 @@ export function App() {
   return (
     <Router>
       <CartProvider>
-        <ScrollToTop />
-        <Toaster position="top-right" richColors />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard/*" element={<Dashboard />} />
-            <Route path="/plant-care" element={<PlantCare />} />
-            <Route path="/blog/*" element={<Blog />} />
-            <Route path="/admin/*" element={<Admin />} />
-          </Routes>
-        </Layout>
+        <PackagesProvider>
+          <RentalProvider>
+            <ScrollToTop />
+            <Toaster position="top-right" richColors />
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/packages" element={<Packages />} />
+                <Route path="/corporate-rental" element={<CorporateRental />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/dashboard/*" element={<Dashboard />} />
+                <Route path="/plant-care" element={<PlantCare />} />
+                <Route path="/blog/*" element={<Blog />} />
+                <Route path="/admin/*" element={<Admin />} />
+              </Routes>
+            </Layout>
+          </RentalProvider>
+        </PackagesProvider>
       </CartProvider>
     </Router>);
 

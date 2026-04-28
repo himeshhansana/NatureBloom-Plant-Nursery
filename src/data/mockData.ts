@@ -4,7 +4,10 @@ import {
   BlogPost,
   AdminStats,
   User,
-  ReturnRequest } from
+  ReturnRequest,
+  PlantPackage,
+  RentalRequest,
+  RentalDamageAssessment } from
 './types';
 
 export const plants: Plant[] = [
@@ -25,6 +28,8 @@ export const plants: Plant[] = [
   description:
   'The iconic Swiss Cheese Plant with its dramatic split leaves. A statement piece for any room that thrives in bright, indirect light.',
   stock: 12,
+  saleStock: 12,
+  rentalStock: 5,
   rating: 4.8,
   reviewCount: 124,
   care: {
@@ -56,6 +61,8 @@ export const plants: Plant[] = [
   description:
   'Elegant white blooms and glossy dark leaves make this a perfect gift. Excellent air purifier that thrives in low light conditions.',
   stock: 25,
+  saleStock: 25,
+  rentalStock: 8,
   rating: 4.6,
   reviewCount: 89,
   care: {
@@ -88,6 +95,8 @@ export const plants: Plant[] = [
   description:
   'A stunning statement plant with large, violin-shaped leaves. The ultimate Instagram-worthy houseplant for modern interiors.',
   stock: 5,
+  saleStock: 5,
+  rentalStock: 3,
   rating: 4.4,
   reviewCount: 67,
   care: {
@@ -118,6 +127,8 @@ export const plants: Plant[] = [
   description:
   'Nearly indestructible and perfect for beginners. Striking upright leaves purify air even at night.',
   stock: 40,
+  saleStock: 40,
+  rentalStock: 15,
   rating: 4.9,
   reviewCount: 203,
   care: {
@@ -148,6 +159,8 @@ export const plants: Plant[] = [
   description:
   'Vibrant tropical blooms in stunning magenta. Perfect for Sri Lankan gardens, thriving in full sun and heat.',
   stock: 18,
+  saleStock: 18,
+  rentalStock: 6,
   rating: 4.7,
   reviewCount: 56,
   care: {
@@ -178,6 +191,8 @@ export const plants: Plant[] = [
   description:
   'A symbol of good luck and prosperity. Thick, glossy leaves on a tree-like form. Incredibly easy to care for.',
   stock: 30,
+  saleStock: 30,
+  rentalStock: 10,
   rating: 4.5,
   reviewCount: 78,
   care: {
@@ -208,6 +223,8 @@ export const plants: Plant[] = [
   description:
   'Elegant moth orchid with cascading white blooms. A sophisticated gift that blooms for months with minimal care.',
   stock: 8,
+  saleStock: 8,
+  rentalStock: 4,
   rating: 4.7,
   reviewCount: 92,
   care: {
@@ -238,6 +255,8 @@ export const plants: Plant[] = [
   description:
   'Essential for Sri Lankan cooking! Fresh curry leaves from your own garden. Aromatic and easy to grow in tropical climates.',
   stock: 50,
+  saleStock: 50,
+  rentalStock: 5,
   rating: 4.9,
   reviewCount: 156,
   care: {
@@ -268,6 +287,8 @@ export const plants: Plant[] = [
   description:
   "Nature's medicine cabinet. Soothing gel for burns and skin care, plus a beautiful architectural plant for your home.",
   stock: 35,
+  saleStock: 35,
+  rentalStock: 12,
   rating: 4.8,
   reviewCount: 178,
   care: {
@@ -299,6 +320,8 @@ export const plants: Plant[] = [
   description:
   'Dramatic tropical beauty with banana-like leaves and exotic orange flowers. A showstopper for any garden.',
   stock: 3,
+  saleStock: 3,
+  rentalStock: 2,
   rating: 4.6,
   reviewCount: 34,
   care: {
@@ -329,6 +352,8 @@ export const plants: Plant[] = [
   description:
   'The ultimate beginner plant with cascading golden-green vines. Grows in almost any condition and purifies air beautifully.',
   stock: 60,
+  saleStock: 60,
+  rentalStock: 20,
   rating: 4.9,
   reviewCount: 245,
   care: {
@@ -359,6 +384,8 @@ export const plants: Plant[] = [
   description:
   'Grow your own mangoes! Premium grafted sapling that fruits within 2-3 years. Perfect for Sri Lankan home gardens.',
   stock: 15,
+  saleStock: 15,
+  rentalStock: 2,
   rating: 4.7,
   reviewCount: 43,
   care: {
@@ -590,3 +617,256 @@ export const sampleUser: User = {
 
   joinedAt: new Date('2024-06-15')
 };
+
+// ============ PLANT PACKAGES ============
+export const plantPackages: PlantPackage[] = [
+  {
+    id: 'pkg-1',
+    name: 'Indoor Jungle Bundle',
+    description: 'Perfect starter pack with 5 beautiful indoor plants that thrive in any home',
+    image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=800&h=800&fit=crop',
+    basePrice: 5200,
+    discountedPrice: 3999,
+    plants: [
+      { plantId: '1', quantity: 1 },
+      { plantId: '2', quantity: 1 },
+      { plantId: '11', quantity: 2 },
+      { plantId: '4', quantity: 1 }
+    ],
+    videoUrl: 'https://www.youtube.com/embed/8D0kj2V62AE',
+    rating: 4.8,
+    reviewCount: 45,
+    stock: 20,
+    featured: true,
+    createdAt: new Date('2025-01-10'),
+    updatedAt: new Date('2025-03-20')
+  },
+  {
+    id: 'pkg-2',
+    name: 'Office Green Package',
+    description: 'Professional plant collection perfect for offices and corporate spaces',
+    image: 'https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?w=800&h=800&fit=crop',
+    basePrice: 7500,
+    discountedPrice: 5499,
+    plants: [
+      { plantId: '1', quantity: 2 },
+      { plantId: '2', quantity: 2 },
+      { plantId: '4', quantity: 2 }
+    ],
+    videoUrl: 'https://www.youtube.com/embed/E9cLMfBbfpw',
+    rating: 4.6,
+    reviewCount: 32,
+    stock: 15,
+    featured: true,
+    createdAt: new Date('2025-02-01'),
+    updatedAt: new Date('2025-03-18')
+  },
+  {
+    id: 'pkg-3',
+    name: 'Succulent Heaven',
+    description: 'Low maintenance succulents perfect for busy plant parents',
+    image: 'https://images.unsplash.com/photo-1567331711402-509c12c41959?w=800&h=800&fit=crop',
+    basePrice: 3500,
+    discountedPrice: 2799,
+    plants: [
+      { plantId: '6', quantity: 2 },
+      { plantId: '9', quantity: 2 },
+      { plantId: '4', quantity: 1 }
+    ],
+    videoUrl: 'https://www.youtube.com/embed/Fk5c5_1I_J4',
+    rating: 4.7,
+    reviewCount: 28,
+    stock: 25,
+    featured: false,
+    createdAt: new Date('2025-02-15'),
+    updatedAt: new Date('2025-03-19')
+  },
+  {
+    id: 'pkg-4',
+    name: 'Culinary Herbs Kit',
+    description: 'Fresh herbs for your kitchen - grow your own curry leaves, basil, and more',
+    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=800&fit=crop',
+    basePrice: 2200,
+    discountedPrice: 1599,
+    plants: [
+      { plantId: '8', quantity: 2 },
+      { plantId: '11', quantity: 1 }
+    ],
+    videoUrl: 'https://www.youtube.com/embed/8h0khSLm8tI',
+    rating: 4.9,
+    reviewCount: 67,
+    stock: 30,
+    featured: true,
+    createdAt: new Date('2025-01-20'),
+    updatedAt: new Date('2025-03-21')
+  },
+  {
+    id: 'pkg-5',
+    name: 'Flowering Paradise',
+    description: 'Colorful flowering plants to brighten any space',
+    image: 'https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800&h=800&fit=crop',
+    basePrice: 8200,
+    discountedPrice: 5999,
+    plants: [
+      { plantId: '5', quantity: 1 },
+      { plantId: '7', quantity: 2 },
+      { plantId: '2', quantity: 1 }
+    ],
+    videoUrl: 'https://www.youtube.com/embed/6IlSZV0_Vn0',
+    rating: 4.5,
+    reviewCount: 38,
+    stock: 12,
+    featured: false,
+    createdAt: new Date('2025-02-20'),
+    updatedAt: new Date('2025-03-20')
+  }
+];
+
+// ============ RENTAL REQUESTS ============
+export const rentalRequests: RentalRequest[] = [
+  {
+    id: 'RNT-001',
+    userId: 'corp-1',
+    userName: 'Nilmini Silva',
+    userEmail: 'nilmini@globex.lk',
+    userPhone: '+94 71 456 7890',
+    companyName: 'Globex Corporation',
+    plants: [
+      {
+        plantId: '1',
+        quantity: 3,
+        rentalPrice: 500,
+        plant: plants[0]
+      },
+      {
+        plantId: '2',
+        quantity: 2,
+        rentalPrice: 300,
+        plant: plants[1]
+      }
+    ],
+    rentalPeriod: 'monthly',
+    startDate: new Date('2025-04-01'),
+    endDate: new Date('2025-05-01'),
+    totalCost: 1600,
+    deliveryAddress: {
+      fullName: 'Nilmini Silva',
+      phone: '+94 71 456 7890',
+      addressLine1: '200 Colombo Business Park',
+      addressLine2: 'Level 5',
+      city: 'Colombo',
+      district: 'Colombo',
+      postalCode: '00700'
+    },
+    status: 'approved',
+    assignedDeliveryPerson: 'Amal Kumara',
+    notes: 'Office decoration for meeting rooms',
+    createdAt: new Date('2025-03-20'),
+    updatedAt: new Date('2025-03-21')
+  },
+  {
+    id: 'RNT-002',
+    userId: 'corp-2',
+    userName: 'Rajesh Mendis',
+    userEmail: 'rajesh@hillhotels.lk',
+    userPhone: '+94 81 234 5678',
+    companyName: 'Hill Hotels Ltd',
+    plants: [
+      {
+        plantId: '5',
+        quantity: 5,
+        rentalPrice: 600,
+        plant: plants[4]
+      },
+      {
+        plantId: '7',
+        quantity: 3,
+        rentalPrice: 800,
+        plant: plants[6]
+      },
+      {
+        plantId: '10',
+        quantity: 2,
+        rentalPrice: 1500,
+        plant: plants[9]
+      }
+    ],
+    rentalPeriod: 'weekly',
+    startDate: new Date('2025-04-15'),
+    endDate: new Date('2025-04-22'),
+    totalCost: 6800,
+    deliveryAddress: {
+      fullName: 'Rajesh Mendis',
+      phone: '+94 81 234 5678',
+      addressLine1: 'Nuwara Eliya Mountain Hotel',
+      addressLine2: 'Grand Ballroom',
+      city: 'Nuwara Eliya',
+      district: 'Nuwara Eliya',
+      postalCode: '22200'
+    },
+    status: 'pending',
+    notes: 'Wedding decoration - high-end event',
+    createdAt: new Date('2025-03-22'),
+    updatedAt: new Date('2025-03-22')
+  },
+  {
+    id: 'RNT-003',
+    userId: 'corp-3',
+    userName: 'Anusha Jayasinghe',
+    userEmail: 'anusha@techstart.lk',
+    userPhone: '+94 77 789 0123',
+    companyName: 'TechStart Innovation Hub',
+    plants: [
+      {
+        plantId: '1',
+        quantity: 4,
+        rentalPrice: 500,
+        plant: plants[0]
+      },
+      {
+        plantId: '11',
+        quantity: 3,
+        rentalPrice: 200,
+        plant: plants[10]
+      }
+    ],
+    rentalPeriod: 'monthly',
+    startDate: new Date('2025-03-15'),
+    endDate: new Date('2025-04-15'),
+    totalCost: 2600,
+    deliveryAddress: {
+      fullName: 'Anusha Jayasinghe',
+      phone: '+94 77 789 0123',
+      addressLine1: '45 Innovation Street',
+      city: 'Colombo',
+      district: 'Colombo',
+      postalCode: '00800'
+    },
+    status: 'in-rental',
+    assignedDeliveryPerson: 'Roshan Perera',
+    notes: 'Office space decoration ongoing',
+    createdAt: new Date('2025-03-15'),
+    updatedAt: new Date('2025-03-15')
+  }
+];
+
+// ============ RENTAL DAMAGE ASSESSMENTS ============
+export const damageAssessments: RentalDamageAssessment[] = [
+  {
+    id: 'DMG-001',
+    rentalRequestId: 'RNT-001',
+    damageReports: [
+      {
+        plantId: '1',
+        quantity: 1,
+        condition: 'damaged',
+        description: 'Leaf damage from improper handling',
+        fee: 300
+      }
+    ],
+    totalDamageFee: 300,
+    status: 'completed',
+    createdAt: new Date('2025-04-01'),
+    updatedAt: new Date('2025-04-01')
+  }
+];
