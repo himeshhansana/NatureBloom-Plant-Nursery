@@ -461,7 +461,8 @@ export const blogPosts: BlogPost[] = [
   author: 'Kasun Perera',
   category: 'Plant Care',
   createdAt: new Date('2025-03-15'),
-  readTime: 5
+  readTime: 5,
+  videoUrl: 'https://www.youtube.com/embed/z-WpLUJUvNw'
 },
 {
   id: '2',
@@ -474,7 +475,8 @@ export const blogPosts: BlogPost[] = [
   author: 'Nimali Fernando',
   category: 'Guides',
   createdAt: new Date('2025-03-10'),
-  readTime: 8
+  readTime: 8,
+  videoUrl: 'https://www.youtube.com/embed/vQXo-OlzEb4'
 },
 {
   id: '3',
@@ -487,7 +489,8 @@ export const blogPosts: BlogPost[] = [
   author: 'Amara Silva',
   category: 'DIY',
   createdAt: new Date('2025-03-05'),
-  readTime: 6
+  readTime: 6,
+  videoUrl: 'https://www.youtube.com/embed/aG48KEBm0fA'
 }];
 
 

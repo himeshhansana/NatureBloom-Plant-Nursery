@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRightIcon, CalendarIcon, ClockIcon, UserIcon } from 'lucide-react';
+import { ArrowRightIcon, CalendarIcon, ClockIcon, UserIcon, PlayCircleIcon, XIcon } from 'lucide-react';
 import { blogPosts } from '../data/mockData';
 export function Blog() {
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const featuredPost = blogPosts[0];
   const regularPosts = blogPosts.slice(1);
   return (
@@ -45,6 +46,24 @@ export function Blog() {
                   <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-medium text-nature-800">
                     Featured • {featuredPost.category}
                   </div>
+                  {featuredPost.videoUrl && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedVideoUrl(featuredPost.videoUrl!);
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors duration-300 group cursor-pointer">
+                      <motion.div
+                        whileHover={{ scale: 1.15 }}
+                        className="flex items-center justify-center">
+                        <div className="bg-white/20 backdrop-blur-sm p-6 rounded-full">
+                          <PlayCircleIcon size={80} className="text-white drop-shadow-lg" />
+                        </div>
+                      </motion.div>
+                      <div className="absolute bottom-4 right-4 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">🎬 PLAY VIDEO</div>
+                    </button>
+                  )}
                 </div>
                 <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
@@ -112,6 +131,24 @@ export function Blog() {
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-nature-800">
                     {post.category}
                   </div>
+                  {post.videoUrl && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedVideoUrl(post.videoUrl!);
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors duration-300 group cursor-pointer">
+                      <motion.div
+                        whileHover={{ scale: 1.15 }}
+                        className="flex items-center justify-center">
+                        <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full">
+                          <PlayCircleIcon size={60} className="text-white drop-shadow-lg" />
+                        </div>
+                      </motion.div>
+                      <div className="absolute bottom-3 right-3 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">🎬 PLAY</div>
+                    </button>
+                  )}
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
@@ -141,6 +178,38 @@ export function Blog() {
             </motion.div>
           )}
         </div>
+
+        {/* Video Modal */}
+        {selectedVideoUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedVideoUrl(null)}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-2xl relative rounded-2xl overflow-hidden shadow-2xl">
+              <button
+                onClick={() => setSelectedVideoUrl(null)}
+                className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white p-2 rounded-full transition-colors">
+                <XIcon size={24} className="text-gray-900" />
+              </button>
+              <div className="aspect-video">
+                <iframe
+                  src={selectedVideoUrl}
+                  title="Blog Video"
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen></iframe>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </div>
     </div>);
 

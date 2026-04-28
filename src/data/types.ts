@@ -112,6 +112,7 @@ export interface BlogPost {
   category: string;
   createdAt: Date;
   readTime: number;
+  videoUrl?: string;
 }
 
 export interface AdminStats {
