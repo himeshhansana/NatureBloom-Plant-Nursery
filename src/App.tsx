@@ -8,6 +8,7 @@ import {
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
 // Contexts
+import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { PackagesProvider } from './contexts/PackagesContext';
 import { RentalProvider } from './contexts/RentalContext';
@@ -52,19 +53,20 @@ function Layout({ children }: {children: React.ReactNode;}) {
       </main>
       <Footer />
       <CartDrawer />
-    </div>);
-
+    </div>
+  );
 }
 export function App() {
   return (
     <Router>
-      <CartProvider>
-        <PackagesProvider>
-          <RentalProvider>
-            <ScrollToTop />
-            <Toaster position="top-right" richColors />
-            <Layout>
-              <Routes>
+      <AuthProvider>
+        <CartProvider>
+          <PackagesProvider>
+            <RentalProvider>
+              <ScrollToTop />
+              <Toaster position="top-right" richColors />
+              <Layout>
+                <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/packages" element={<Packages />} />
@@ -80,9 +82,10 @@ export function App() {
                 <Route path="/admin/*" element={<Admin />} />
               </Routes>
             </Layout>
-          </RentalProvider>
-        </PackagesProvider>
-      </CartProvider>
+            </RentalProvider>
+          </PackagesProvider>
+        </CartProvider>
+      </AuthProvider>
     </Router>);
 
 }

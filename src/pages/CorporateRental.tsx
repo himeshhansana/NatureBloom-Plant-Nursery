@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -8,16 +9,19 @@ import {
   PlusIcon,
   CheckCircleIcon,
   AlertCircleIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  LockIcon
 } from 'lucide-react';
 import { useRental } from '../contexts/RentalContext';
+import { useAuth } from '../contexts/AuthContext';
 import { plants } from '../data/mockData';
 import { RentalRequest, RentalPlant } from '../data/types';
 import { toast } from 'sonner';
 
 export function CorporateRental() {
   const { requests, submitRentalRequest } = useRental();
-  const [activeTab, setActiveTab] = useState<'browse' | 'submit' | 'requests'>('browse');
+  const { user, isAuthenticated } = useAuth();
+  const [activeTab, setActiveTab] = useState<'submit' | 'requests'>('submit');
   const [selectedPlants, setSelectedPlants] = useState<RentalPlant[]>([]);
   const [formData, setFormData] = useState<{
     userName: string;
@@ -35,9 +39,9 @@ export function CorporateRental() {
     };
     notes: string;
   }>({
-    userName: '',
-    userEmail: '',
-    userPhone: '',
+    userName: user?.name || '',
+    userEmail: user?.email || '',
+    userPhone: user?.phone || '',
     companyName: '',
     rentalPeriod: 'weekly',
     startDate: '',
@@ -50,6 +54,18 @@ export function CorporateRental() {
     },
     notes: ''
   });
+
+  // Update form data when user logs in
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        userName: user.name,
+        userEmail: user.email,
+        userPhone: user.phone
+      }));
+    }
+  }, [user]);
 
   const rentalPrices: Record<string, { weekly: number; monthly: number }> = {
     '1': { weekly: 500, monthly: 1500 },
@@ -125,7 +141,7 @@ export function CorporateRental() {
 
     const newRequest: RentalRequest = {
       id: `RNT-${Date.now()}`,
-      userId: `user-${Date.now()}`,
+      userId: user?.id || `user-${Date.now()}`,
       userName: formData.userName,
       userEmail: formData.userEmail,
       userPhone: formData.userPhone,
@@ -187,115 +203,131 @@ export function CorporateRental() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-10 md:mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">
             Corporate Plant Rental
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600">
             Rent beautiful plants for your office, hotel, or event
           </p>
         </motion.div>
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-8 flex-wrap">
-          {['browse', 'submit', 'requests'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab as any)}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                activeTab === tab
-                  ? 'bg-green-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-600'
-              }`}
-            >
-              {tab === 'browse' && 'Browse Plants'}
-              {tab === 'submit' && 'Request Rental'}
-              {tab === 'requests' && 'My Rentals'}
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        {activeTab === 'browse' && (
+        {/* Login Required Alert */}
+        {!isAuthenticated ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full mb-8 md:mb-12"
           >
-            {plants.map((plant) => (
-              <div
-                key={plant.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all"
-              >
-                <img
-                  src={plant.image}
-                  alt={plant.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{plant.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{plant.scientificName}</p>
-
-                  <div className="mb-4 pb-4 border-b border-gray-200">
-                    <p className="text-sm font-semibold text-gray-700 mb-2">
-                      Rental Price
-                    </p>
-                    <div className="flex gap-4">
-                      <div>
-                        <span className="text-sm text-gray-600">Weekly</span>
-                        <p className="text-xl font-bold text-green-600">
-                          Rs. {rentalPrices[plant.id]?.weekly || 100}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-gray-600">Monthly</span>
-                        <p className="text-xl font-bold text-green-600">
-                          Rs. {rentalPrices[plant.id]?.monthly || 300}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <span className="text-sm font-semibold text-green-600">
-                      {plant.rentalStock} available for rental
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => addPlantToRental(plant.id)}
-                    disabled={plant.rentalStock === 0}
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg transition-all"
-                  >
-                    Add to Request
-                  </button>
-                </div>
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-center">
+              <LockIcon size={40} className="mx-auto text-blue-600 mb-3 sm:mb-4" />
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">
+                Login Required
+              </h2>
+              <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">
+                Please log in to your account to submit a plant rental request. Your details will be automatically filled when you sign in.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <Link
+                  to="/login"
+                  className="px-6 sm:px-8 py-2.5 sm:py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all text-sm sm:text-base"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white text-green-600 border-2 border-green-600 rounded-lg font-semibold hover:bg-green-50 transition-all text-sm sm:text-base"
+                >
+                  Create Account
+                </Link>
               </div>
-            ))}
+            </div>
           </motion.div>
+        ) : null}
+
+        {/* Tabs - Only show if authenticated */}
+        {isAuthenticated && (
+          <div className="flex gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8 flex-wrap justify-center sm:justify-start">
+            {['submit', 'requests'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as any)}
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all text-xs sm:text-sm md:text-base ${
+                  activeTab === tab
+                    ? 'bg-green-600 text-white shadow-lg'
+                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-600'
+                }`}
+              >
+                {tab === 'submit' && 'Request Rental'}
+                {tab === 'requests' && 'My Rentals'}
+              </button>
+            ))}
+          </div>
         )}
 
-        {activeTab === 'submit' && (
+        {/* Content */}
+        {isAuthenticated && activeTab === 'submit' && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="max-w-2xl mx-auto"
+            className="w-full"
           >
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Submit Rental Request</h2>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Submit Rental Request</h2>
 
-              <form onSubmit={handleSubmitRental} className="space-y-6">
+              {/* Available Plants Section */}
+              <div className="mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-gray-200">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                  Browse & Select Plants for Rental
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {plants.map((plant) => (
+                    <div
+                      key={plant.id}
+                      className="bg-green-50 rounded-lg overflow-hidden border border-green-200 hover:border-green-500 transition-all flex flex-col"
+                    >
+                      <img
+                        src={plant.image}
+                        alt={plant.name}
+                        className="w-full h-24 sm:h-28 md:h-32 object-cover"
+                      />
+                      <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                        <h4 className="font-semibold text-gray-900 mb-1 text-xs sm:text-sm line-clamp-2">{plant.name}</h4>
+                        <p className="text-xs text-gray-600 mb-2 sm:mb-3 line-clamp-1">{plant.scientificName}</p>
+                        <div className="flex flex-col gap-1 mb-2 sm:mb-3 text-xs">
+                          <span className="bg-white px-2 py-1 rounded text-gray-700">
+                            Weekly: Rs. {rentalPrices[plant.id]?.weekly || 100}
+                          </span>
+                          <span className="bg-white px-2 py-1 rounded text-gray-700">
+                            Monthly: Rs. {rentalPrices[plant.id]?.monthly || 300}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => addPlantToRental(plant.id)}
+                          disabled={plant.rentalStock === 0}
+                          className="mt-auto w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-xs sm:text-sm font-semibold py-2 rounded transition-all"
+                        >
+                          {plant.rentalStock === 0 ? 'Out of Stock' : 'Add to Request'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmitRental} className="space-y-4 sm:space-y-6">
                 {/* Company Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Full Name *
                     </label>
                     <input
@@ -304,11 +336,11 @@ export function CorporateRental() {
                       onChange={(e) =>
                         setFormData({ ...formData, userName: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Company Name *
                     </label>
                     <input
@@ -317,14 +349,14 @@ export function CorporateRental() {
                       onChange={(e) =>
                         setFormData({ ...formData, companyName: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Email *
                     </label>
                     <input
@@ -333,11 +365,11 @@ export function CorporateRental() {
                       onChange={(e) =>
                         setFormData({ ...formData, userEmail: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Phone
                     </label>
                     <input
@@ -346,15 +378,15 @@ export function CorporateRental() {
                       onChange={(e) =>
                         setFormData({ ...formData, userPhone: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                 </div>
 
                 {/* Rental Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Rental Period *
                     </label>
                     <select
@@ -365,14 +397,14 @@ export function CorporateRental() {
                           rentalPeriod: e.target.value as 'weekly' | 'monthly'
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
                       <option value="weekly">Weekly</option>
                       <option value="monthly">Monthly</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Start Date *
                     </label>
                     <input
@@ -381,17 +413,17 @@ export function CorporateRental() {
                       onChange={(e) =>
                         setFormData({ ...formData, startDate: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                 </div>
 
                 {/* Delivery Address */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                     Delivery Address
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <input
                       type="text"
                       placeholder="Address Line 1 *"
@@ -405,7 +437,7 @@ export function CorporateRental() {
                           }
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                     <input
                       type="text"
@@ -420,9 +452,9 @@ export function CorporateRental() {
                           }
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       <input
                         type="text"
                         placeholder="City *"
@@ -436,7 +468,7 @@ export function CorporateRental() {
                             }
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                       <input
                         type="text"
@@ -451,7 +483,7 @@ export function CorporateRental() {
                             }
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                       <input
                         type="text"
@@ -466,7 +498,7 @@ export function CorporateRental() {
                             }
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                   </div>
@@ -474,41 +506,41 @@ export function CorporateRental() {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                     Additional Notes
                   </label>
                   <textarea
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    rows={3}
+                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="Any special requirements or notes..."
                   />
                 </div>
 
                 {/* Selected Plants */}
                 {selectedPlants.length > 0 && (
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Selected Plants</h3>
+                  <div className="bg-green-50 rounded-lg p-3 sm:p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Selected Plants</h3>
                     <div className="space-y-2">
                       {selectedPlants.map((plant) => {
                         const plantData = plants.find((p) => p.id === plant.plantId);
                         return (
                           <div
                             key={plant.plantId}
-                            className="flex justify-between items-center bg-white p-3 rounded-lg"
+                            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-white p-2.5 sm:p-3 rounded-lg"
                           >
-                            <span className="text-gray-700">
+                            <span className="text-xs sm:text-sm text-gray-700">
                               {plantData?.name} x {plant.quantity}
                             </span>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-green-600">
+                            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                              <span className="font-semibold text-xs sm:text-sm text-green-600">
                                 Rs. {plant.rentalPrice * plant.quantity}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => removePlantFromRental(plant.plantId)}
-                                className="text-red-600 hover:text-red-700"
+                                className="text-red-600 hover:text-red-700 text-lg sm:text-base"
                               >
                                 ✕
                               </button>
@@ -517,10 +549,10 @@ export function CorporateRental() {
                         );
                       })}
                     </div>
-                    <div className="mt-4 pt-4 border-t border-green-200">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-gray-900">Total Cost:</span>
-                        <span className="text-2xl font-bold text-green-600">
+                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-green-200">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <span className="font-bold text-xs sm:text-sm text-gray-900">Total Cost:</span>
+                        <span className="text-lg sm:text-2xl font-bold text-green-600">
                           Rs. {calculateTotalCost().toLocaleString()}
                         </span>
                       </div>
@@ -532,9 +564,10 @@ export function CorporateRental() {
                 <button
                   type="submit"
                   disabled={selectedPlants.length === 0}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
-                  <CheckCircleIcon size={20} />
+                  <CheckCircleIcon size={18} className="hidden sm:inline" />
+                  <CheckCircleIcon size={16} className="inline sm:hidden" />
                   Submit Rental Request
                 </button>
               </form>
@@ -542,88 +575,88 @@ export function CorporateRental() {
           </motion.div>
         )}
 
-        {activeTab === 'requests' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-            {requests.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-2xl">
+        {isAuthenticated && activeTab === 'requests' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3 sm:space-y-4">
+            {requests.filter((req) => req.userId === user?.id).length === 0 ? (
+              <div className="text-center py-8 sm:py-12 bg-white rounded-xl sm:rounded-2xl">
                 <AlertCircleIcon
-                  size={48}
-                  className="mx-auto text-gray-400 mb-4"
+                  size={36}
+                  className="mx-auto text-gray-400 mb-2 sm:mb-4 sm:w-12 sm:h-12"
                 />
-                <p className="text-lg text-gray-600">No rental requests yet</p>
+                <p className="text-sm sm:text-lg text-gray-600">No rental requests yet</p>
               </div>
             ) : (
-              requests.map((request) => (
+              requests.filter((req) => req.userId === user?.id).map((request) => (
                 <div
                   key={request.id}
-                  className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all"
+                  className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">{request.companyName}</h3>
-                      <p className="text-sm text-gray-600">ID: {request.id}</p>
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-base sm:text-xl font-bold text-gray-900">{request.companyName}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600">ID: {request.id}</p>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(request.status)}`}
+                      className={`px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap ${getStatusColor(request.status)}`}
                     >
                       {request.status.charAt(0).toUpperCase() +
                         request.status.slice(1)}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <CalendarIcon size={18} />
-                      <span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex items-start sm:items-center gap-2 text-xs sm:text-base text-gray-700">
+                      <CalendarIcon size={16} className="flex-shrink-0 mt-0.5 sm:mt-0" />
+                      <span className="line-clamp-2">
                         {request.startDate.toLocaleDateString()} -{' '}
                         {request.endDate.toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <MapPinIcon size={18} />
+                    <div className="flex items-start sm:items-center gap-2 text-xs sm:text-base text-gray-700">
+                      <MapPinIcon size={16} className="flex-shrink-0 mt-0.5 sm:mt-0" />
                       <span>{request.deliveryAddress.city}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <PhoneIcon size={18} />
-                      <span>{request.userPhone}</span>
+                    <div className="flex items-start sm:items-center gap-2 text-xs sm:text-base text-gray-700">
+                      <PhoneIcon size={16} className="flex-shrink-0 mt-0.5 sm:mt-0" />
+                      <span className="break-all">{request.userPhone}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <MailIcon size={18} />
-                      <span>{request.userEmail}</span>
+                    <div className="flex items-start sm:items-center gap-2 text-xs sm:text-base text-gray-700">
+                      <MailIcon size={16} className="flex-shrink-0 mt-0.5 sm:mt-0" />
+                      <span className="truncate">{request.userEmail}</span>
                     </div>
                   </div>
 
                   {request.assignedDeliveryPerson && (
-                    <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm font-semibold text-blue-900">
+                    <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-blue-50 rounded-lg">
+                      <p className="text-xs sm:text-sm font-semibold text-blue-900">
                         Delivery Person: {request.assignedDeliveryPerson}
                       </p>
                     </div>
                   )}
 
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2">Plants</h4>
+                  <div className="mb-3 sm:mb-4">
+                    <h4 className="font-semibold text-gray-900 mb-2 text-xs sm:text-sm">Plants</h4>
                     <div className="space-y-1">
                       {request.plants.map((plant) => {
                         const plantData = plants.find((p) => p.id === plant.plantId);
                         return (
                           <div
                             key={plant.plantId}
-                            className="text-sm text-gray-700 flex justify-between"
+                            className="text-xs sm:text-sm text-gray-700 flex flex-col sm:flex-row justify-between"
                           >
                             <span>
                               {plantData?.name} x {plant.quantity}
                             </span>
-                            <span>Rs. {plant.rentalPrice * plant.quantity}</span>
+                            <span className="text-green-600 font-semibold">Rs. {plant.rentalPrice * plant.quantity}</span>
                           </div>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
-                    <span className="font-semibold text-gray-900">Total:</span>
-                    <span className="text-2xl font-bold text-green-600">
+                  <div className="pt-3 sm:pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <span className="font-semibold text-xs sm:text-sm text-gray-900">Total:</span>
+                    <span className="text-lg sm:text-2xl font-bold text-green-600">
                       Rs. {request.totalCost.toLocaleString()}
                     </span>
                   </div>

@@ -9,17 +9,28 @@ import {
   PhoneIcon,
   ArrowRightIcon } from
 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
 export function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate registration
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await register(name, email, phone, password);
       navigate('/dashboard');
-    }, 1000);
+    } catch (error) {
+      console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream py-24 px-4 relative overflow-hidden">
@@ -62,6 +73,8 @@ export function Register() {
               <input
                 type="text"
                 required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nature-500 focus:bg-white transition-colors"
                 placeholder="Kasun Perera" />
               
@@ -80,6 +93,8 @@ export function Register() {
               <input
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nature-500 focus:bg-white transition-colors"
                 placeholder="you@example.com" />
               
@@ -98,6 +113,8 @@ export function Register() {
               <input
                 type="tel"
                 required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nature-500 focus:bg-white transition-colors"
                 placeholder="+94 7X XXX XXXX" />
               
@@ -116,6 +133,8 @@ export function Register() {
               <input
                 type="password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nature-500 focus:bg-white transition-colors"
                 placeholder="••••••••" />
               

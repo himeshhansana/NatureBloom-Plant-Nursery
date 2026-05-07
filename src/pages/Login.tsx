@@ -2,17 +2,26 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LeafIcon, MailIcon, LockIcon, ArrowRightIcon } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
 export function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await login(email, password);
       navigate('/dashboard');
-    }, 1000);
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream py-20 px-4 relative overflow-hidden">
@@ -55,6 +64,8 @@ export function Login() {
               <input
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nature-500 focus:bg-white transition-colors"
                 placeholder="you@example.com" />
               
@@ -81,6 +92,8 @@ export function Login() {
               <input
                 type="password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nature-500 focus:bg-white transition-colors"
                 placeholder="••••••••" />
               
