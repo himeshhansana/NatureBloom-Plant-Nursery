@@ -18,7 +18,7 @@ import { plants } from '../data/mockData';
 import { RentalRequest, RentalPlant } from '../data/types';
 import { toast } from 'sonner';
 
-export function CorporateRental() {
+export function Rental() {
   const { requests, submitRentalRequest } = useRental();
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<'submit' | 'requests'>('submit');
@@ -278,7 +278,7 @@ export function CorporateRental() {
           className="text-center mb-8 sm:mb-10 md:mb-12"
         >
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">
-            Corporate Plant Rental
+            Plant Rental
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600">
             Rent beautiful plants for your office, hotel, or event

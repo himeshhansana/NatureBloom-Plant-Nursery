@@ -36,7 +36,7 @@ export function Navbar() {
     path: '/shop'
   },
   {
-    name: 'Packages',
+    name: 'Packages & Rentals',
     path: '/packages'
   },
   {
@@ -52,20 +52,20 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'glass py-3' : 'bg-transparent py-5'}`}>
       
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container px-4 mx-auto md:px-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="bg-nature-600 text-white p-1.5 rounded-lg group-hover:bg-nature-500 transition-colors">
               <LeafIcon size={24} />
             </div>
-            <span className="font-display font-bold text-2xl text-nature-900 tracking-tight">
+            <span className="text-2xl font-bold tracking-tight font-display text-nature-900">
               NatureBloom
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="items-center hidden gap-8 md:flex">
             {navLinks.map((link) =>
             <Link
               key={link.name}
@@ -81,21 +81,21 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             <Link
               to="/shop"
-              className="p-2 text-gray-600 hover:text-nature-600 transition-colors hidden sm:block">
+              className="hidden p-2 text-gray-600 transition-colors hover:text-nature-600 sm:block">
               
               <SearchIcon size={20} />
             </Link>
 
             <Link
               to="/dashboard"
-              className="p-2 text-gray-600 hover:text-nature-600 transition-colors hidden sm:block">
+              className="hidden p-2 text-gray-600 transition-colors hover:text-nature-600 sm:block">
               
               <UserIcon size={20} />
             </Link>
 
             <button
               onClick={() => setIsCartOpen(true)}
-              className="p-2 text-gray-600 hover:text-nature-600 transition-colors relative">
+              className="relative p-2 text-gray-600 transition-colors hover:text-nature-600">
               
               <ShoppingCartIcon size={20} />
               {cartCount > 0 &&
@@ -132,7 +132,7 @@ export function Navbar() {
             opacity: 0,
             height: 0
           }}
-          className="md:hidden glass border-t border-white/20 mt-3">
+          className="mt-3 border-t md:hidden glass border-white/20">
           
             <div className="flex flex-col px-4 py-6 space-y-4">
               {navLinks.map((link) =>
@@ -144,17 +144,17 @@ export function Navbar() {
                   {link.name}
                 </Link>
             )}
-              <div className="h-px bg-gray-200 my-2"></div>
+              <div className="h-px my-2 bg-gray-200"></div>
               <Link
               to="/dashboard"
-              className="flex items-center gap-3 text-lg font-medium p-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+              className="flex items-center gap-3 p-2 text-lg font-medium text-gray-700 rounded-lg hover:bg-gray-50">
               
                 <UserIcon size={20} />
                 My Account
               </Link>
               <Link
               to="/admin"
-              className="flex items-center gap-3 text-lg font-medium p-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+              className="flex items-center gap-3 p-2 text-lg font-medium text-gray-700 rounded-lg hover:bg-gray-50">
               
                 Admin Panel
               </Link>
