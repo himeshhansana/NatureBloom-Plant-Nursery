@@ -40,10 +40,6 @@ export function Navbar() {
     path: '/packages'
   },
   {
-    name: 'Corporate Rental',
-    path: '/corporate-rental'
-  },
-  {
     name: 'Plant Care',
     path: '/plant-care'
   },

@@ -23,6 +23,8 @@ export function CorporateRental() {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<'submit' | 'requests'>('submit');
   const [selectedPlants, setSelectedPlants] = useState<RentalPlant[]>([]);
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percent: number } | null>(null);
   const [formData, setFormData] = useState<{
     userName: string;
     userEmail: string;
@@ -54,6 +56,16 @@ export function CorporateRental() {
     },
     notes: ''
   });
+
+  // Valid promo codes with discounts
+  const PROMO_CODES: Record<string, number> = {
+    'BULK10': 10,
+    'BULK15': 15,
+    'SUMMER20': 20,
+    'CORPORATE25': 25,
+    'NATURE5': 5,
+    'GREEN15': 15
+  };
 
   // Update form data when user logs in
   useEffect(() => {
@@ -118,6 +130,49 @@ export function CorporateRental() {
     return total;
   };
 
+  const calculateBulkDiscount = () => {
+    const totalPlants = selectedPlants.reduce((sum, p) => sum + p.quantity, 0);
+    if (totalPlants >= 15) return 20;
+    if (totalPlants >= 10) return 15;
+    if (totalPlants >= 5) return 10;
+    return 0;
+  };
+
+  const getApplicableDiscount = () => {
+    // Promo code takes precedence
+    if (appliedDiscount) {
+      return appliedDiscount.percent;
+    }
+    // Otherwise use bulk discount
+    return calculateBulkDiscount();
+  };
+
+  const calculateDiscountAmount = () => {
+    const subtotal = calculateTotalCost();
+    const discountPercent = getApplicableDiscount();
+    return Math.round((subtotal * discountPercent) / 100);
+  };
+
+  const calculateFinalCost = () => {
+    return calculateTotalCost() - calculateDiscountAmount();
+  };
+
+  const handleApplyPromoCode = () => {
+    const code = discountCode.toUpperCase();
+    if (PROMO_CODES[code]) {
+      setAppliedDiscount({ code, percent: PROMO_CODES[code] });
+      toast.success(`Promo code "${code}" applied! ${PROMO_CODES[code]}% discount`);
+      setDiscountCode('');
+    } else {
+      toast.error('Invalid promo code');
+    }
+  };
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode('');
+  };
+
   const handleSubmitRental = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -139,6 +194,11 @@ export function CorporateRental() {
       endDate.setMonth(endDate.getMonth() + 1);
     }
 
+    const subtotal = calculateTotalCost();
+    const discountAmount = calculateDiscountAmount();
+    const discountPercent = getApplicableDiscount();
+    const finalCost = calculateFinalCost();
+
     const newRequest: RentalRequest = {
       id: `RNT-${Date.now()}`,
       userId: user?.id || `user-${Date.now()}`,
@@ -150,7 +210,11 @@ export function CorporateRental() {
       rentalPeriod: formData.rentalPeriod,
       startDate,
       endDate,
-      totalCost: calculateTotalCost(),
+      subtotal,
+      discountPercent: discountPercent > 0 ? discountPercent : undefined,
+      discountAmount: discountAmount > 0 ? discountAmount : undefined,
+      discountCode: appliedDiscount?.code,
+      totalCost: finalCost,
       deliveryAddress: {
         fullName: formData.userName,
         phone: formData.userPhone,
@@ -164,6 +228,8 @@ export function CorporateRental() {
 
     submitRentalRequest(newRequest);
     setSelectedPlants([]);
+    setAppliedDiscount(null);
+    setDiscountCode('');
     setFormData({
       userName: '',
       userEmail: '',
@@ -518,9 +584,56 @@ export function CorporateRental() {
                   />
                 </div>
 
+                {/* Promo Code Section */}
+                {selectedPlants.length > 0 && (
+                  <div className="bg-purple-50 rounded-lg p-3 sm:p-4 border border-purple-200">
+                    <h3 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Apply Discount Code</h3>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          placeholder="Enter promo code (e.g., BULK10, SUMMER20)"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                          disabled={appliedDiscount !== null}
+                          className="w-full px-3 sm:px-4 py-2 text-sm border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
+                        />
+                      </div>
+                      {!appliedDiscount ? (
+                        <button
+                          type="button"
+                          onClick={handleApplyPromoCode}
+                          disabled={!discountCode}
+                          className="px-4 sm:px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-all text-xs sm:text-sm whitespace-nowrap"
+                        >
+                          Apply
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleRemoveDiscount}
+                          className="px-4 sm:px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all text-xs sm:text-sm whitespace-nowrap"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    {appliedDiscount && (
+                      <div className="mt-2 p-2 bg-green-100 text-green-800 rounded text-xs sm:text-sm font-semibold">
+                        ✓ Promo code "{appliedDiscount.code}" applied - {appliedDiscount.percent}% discount
+                      </div>
+                    )}
+                    {!appliedDiscount && calculateBulkDiscount() > 0 && (
+                      <div className="mt-2 p-2 bg-blue-100 text-blue-800 rounded text-xs sm:text-sm font-semibold">
+                        💡 Bulk discount: {calculateBulkDiscount()}% (auto-applied)
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Selected Plants */}
                 {selectedPlants.length > 0 && (
-                  <div className="bg-green-50 rounded-lg p-3 sm:p-4">
+                  <div className="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-200">
                     <h3 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Selected Plants</h3>
                     <div className="space-y-2">
                       {selectedPlants.map((plant) => {
@@ -549,11 +662,32 @@ export function CorporateRental() {
                         );
                       })}
                     </div>
-                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-green-200">
+                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-green-200 space-y-2">
+                      {/* Subtotal */}
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <span className="font-bold text-xs sm:text-sm text-gray-900">Total Cost:</span>
-                        <span className="text-lg sm:text-2xl font-bold text-green-600">
+                        <span className="font-semibold text-xs sm:text-sm text-gray-900">Subtotal:</span>
+                        <span className="text-base sm:text-lg font-semibold text-gray-700">
                           Rs. {calculateTotalCost().toLocaleString()}
+                        </span>
+                      </div>
+
+                      {/* Discount Row */}
+                      {getApplicableDiscount() > 0 && (
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 bg-purple-100 rounded text-purple-700">
+                          <span className="font-semibold text-xs sm:text-sm">
+                            Discount ({getApplicableDiscount()}%):
+                          </span>
+                          <span className="text-base sm:text-lg font-bold">
+                            -Rs. {calculateDiscountAmount().toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Final Total */}
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <span className="font-bold text-sm sm:text-base text-gray-900">Total Cost:</span>
+                        <span className="text-xl sm:text-2xl font-bold text-green-600">
+                          Rs. {calculateFinalCost().toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -654,11 +788,27 @@ export function CorporateRental() {
                     </div>
                   </div>
 
-                  <div className="pt-3 sm:pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <span className="font-semibold text-xs sm:text-sm text-gray-900">Total:</span>
-                    <span className="text-lg sm:text-2xl font-bold text-green-600">
-                      Rs. {request.totalCost.toLocaleString()}
-                    </span>
+                  <div className="pt-3 sm:pt-4 border-t border-gray-200 space-y-2">
+                    {request.subtotal && (
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm">
+                        <span className="text-gray-700">Subtotal:</span>
+                        <span className="text-gray-700">Rs. {request.subtotal.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {request.discountPercent && request.discountAmount && (
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm p-2 bg-purple-100 rounded">
+                        <span className="text-purple-800 font-semibold">
+                          Discount {request.discountCode ? `(${request.discountCode})` : ''} ({request.discountPercent}%):
+                        </span>
+                        <span className="text-purple-800 font-bold">-Rs. {request.discountAmount.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 font-bold">
+                      <span className="text-gray-900">Total:</span>
+                      <span className="text-lg sm:text-2xl text-green-600">
+                        Rs. {request.totalCost.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))

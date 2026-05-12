@@ -29,7 +29,6 @@ import { Blog } from './pages/Blog';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Packages } from './pages/Packages';
-import { CorporateRental } from './pages/CorporateRental';
 // Scroll to top component
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -70,7 +69,6 @@ export function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/packages" element={<Packages />} />
-                <Route path="/corporate-rental" element={<CorporateRental />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />

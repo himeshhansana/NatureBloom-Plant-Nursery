@@ -170,6 +170,10 @@ export interface RentalRequest {
   rentalPeriod: RentalPeriod;
   startDate: Date;
   endDate: Date;
+  subtotal: number;
+  discountPercent?: number;
+  discountAmount?: number;
+  discountCode?: string;
   totalCost: number;
   deliveryAddress: Address;
   status: 'pending' | 'approved' | 'rejected' | 'in-rental' | 'returned' | 'damage-assessed';

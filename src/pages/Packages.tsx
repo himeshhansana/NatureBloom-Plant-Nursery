@@ -6,7 +6,9 @@ import {
   StarIcon,
   PlayIcon,
   ChevronDownIcon,
-  FilterIcon
+  FilterIcon,
+  TagIcon,
+  TrendingUpIcon
 } from 'lucide-react';
 import { usePackages } from '../contexts/PackagesContext';
 import { useCart } from '../contexts/CartContext';
@@ -19,17 +21,24 @@ export function Packages() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPackage, setSelectedPackage] = useState<PlantPackage | null>(null);
   const [showVideo, setShowVideo] = useState(false);
-  const [sortBy, setSortBy] = useState<'price' | 'rating' | 'newest'>('newest');
+  const [sortBy, setSortBy] = useState<'price' | 'rating' | 'newest' | 'discount'>('newest');
+  const [filterFeatured, setFilterFeatured] = useState(false);
 
   const filteredPackages =
     searchQuery.length > 0 ? searchPackages(searchQuery) : packages;
 
-  const sortedPackages = [...filteredPackages].sort((a, b) => {
+  const finalFilteredPackages = filterFeatured 
+    ? filteredPackages.filter(pkg => pkg.featured)
+    : filteredPackages;
+
+  const sortedPackages = [...finalFilteredPackages].sort((a, b) => {
     switch (sortBy) {
       case 'price':
         return a.discountedPrice - b.discountedPrice;
       case 'rating':
         return b.rating - a.rating;
+      case 'discount':
+        return calculateSavings(b) - calculateSavings(a);
       case 'newest':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       default:
@@ -64,9 +73,10 @@ export function Packages() {
             Curated bundles to bring nature into your space at great prices
           </p>
 
-          {/* Search and Filter */}
-          <div className="flex flex-col gap-4 md:flex-row md:justify-center md:items-center md:gap-4">
-            <div className="relative flex-1 md:flex-none md:w-96">
+          {/* Search and Filter Controls */}
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative flex-1 max-w-lg mx-auto">
               <SearchIcon className="absolute left-3 top-3 text-gray-400" size={20} />
               <input
                 type="text"
@@ -77,21 +87,43 @@ export function Packages() {
               />
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="relative inline-block">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="appearance-none px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+            {/* Sort and Filter Options */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-center flex-wrap">
+              {/* Sort Dropdown */}
+              <div className="relative inline-block min-w-[200px]">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="w-full appearance-none px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="price">Price (Low to High)</option>
+                  <option value="rating">Highest Rated</option>
+                  <option value="discount">Best Discount</option>
+                </select>
+                <ChevronDownIcon
+                  size={20}
+                  className="absolute right-3 top-2 text-gray-400 pointer-events-none"
+                />
+              </div>
+
+              {/* Featured Filter Button */}
+              <button
+                onClick={() => setFilterFeatured(!filterFeatured)}
+                className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                  filterFeatured
+                    ? 'bg-yellow-500 text-white'
+                    : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-yellow-500'
+                }`}
               >
-                <option value="newest">Newest</option>
-                <option value="price">Price (Low to High)</option>
-                <option value="rating">Rating</option>
-              </select>
-              <ChevronDownIcon
-                size={20}
-                className="absolute right-3 top-2 text-gray-400 pointer-events-none"
-              />
+                <StarIcon size={18} />
+                {filterFeatured ? 'Featured' : 'Show Featured'}
+              </button>
+            </div>
+
+            {/* Results Count */}
+            <div className="text-sm text-gray-600 mt-4">
+              Showing {sortedPackages.length} package{sortedPackages.length !== 1 ? 's' : ''}
             </div>
           </div>
         </motion.div>
@@ -99,7 +131,10 @@ export function Packages() {
         {/* Featured Packages */}
         {sortedPackages.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Packages</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <TrendingUpIcon size={24} className="text-green-600" />
+              Our Packages
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedPackages.map((pkg, index) => (
                 <motion.div
@@ -107,7 +142,7 @@ export function Packages() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group cursor-pointer"
+                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group cursor-pointer h-full flex flex-col"
                   onClick={() => setSelectedPackage(pkg)}
                 >
                   {/* Image Container */}
@@ -118,8 +153,17 @@ export function Packages() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
 
+                    {/* Featured Badge */}
+                    {pkg.featured && (
+                      <div className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1">
+                        <StarIcon size={14} />
+                        Featured
+                      </div>
+                    )}
+
                     {/* Discount Badge */}
-                    <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-bold">
+                    <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                      <TagIcon size={14} />
                       -{calculateSavings(pkg)}%
                     </div>
 
@@ -131,24 +175,24 @@ export function Packages() {
                           setSelectedPackage(pkg);
                           setShowVideo(true);
                         }}
-                        className="absolute top-4 left-4 bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition-all"
+                        className="absolute bottom-4 left-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full transition-all shadow-lg"
                       >
-                        <PlayIcon size={20} />
+                        <PlayIcon size={24} />
                       </button>
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
+                  <div className="p-6 flex flex-col flex-grow">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">
                       {pkg.description}
                     </p>
 
                     {/* Plants Count */}
-                    <div className="mb-4 text-sm text-gray-600">
-                      <span className="font-semibold">{pkg.plants.length}</span> plants
-                      included
+                    <div className="mb-4 text-sm text-gray-600 flex items-center gap-2">
+                      <span className="font-semibold text-green-600">{pkg.plants.length}</span>
+                      <span>plants included</span>
                     </div>
 
                     {/* Rating */}
@@ -167,7 +211,7 @@ export function Packages() {
                         ))}
                       </div>
                       <span className="text-sm text-gray-600">
-                        ({pkg.reviewCount} reviews)
+                        ({pkg.reviewCount})
                       </span>
                     </div>
 
@@ -179,6 +223,9 @@ export function Packages() {
                         </span>
                         <span className="text-lg text-gray-400 line-through">
                           Rs. {pkg.basePrice.toLocaleString()}
+                        </span>
+                        <span className="text-sm font-semibold text-red-600 ml-auto">
+                          Save Rs. {(pkg.basePrice - pkg.discountedPrice).toLocaleString()}
                         </span>
                       </div>
                     </div>
